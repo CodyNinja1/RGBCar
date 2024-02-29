@@ -1,7 +1,8 @@
 [meta]
-author = "JailMan"
-name = "RGBCar"
-version = "1.0"
+author    = "JailMan"
+name      = "RGBCar"
+version   = "1.0"
+category  = "Fun"
 
 [script]
 dependencies = [ "VehicleState" ]
