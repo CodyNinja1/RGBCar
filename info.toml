@@ -1,0 +1,7 @@
+[meta]
+author = "JailMan"
+name = "RGBCar"
+version = "1.0"
+
+[script]
+dependencies = [ "VehicleState" ]
