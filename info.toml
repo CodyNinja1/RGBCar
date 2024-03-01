@@ -6,3 +6,4 @@ category  = "Fun"
 
 [script]
 dependencies = [ "VehicleState" ]
+exports = [ "Export.as" ]

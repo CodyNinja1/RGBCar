@@ -2,6 +2,7 @@ enum EHueType
 {
     CarSpeed,
     CarRPM,
+    CarRPMSpeedometer,
     RGB,
     RGBCarSpeed,
     FixedColor
@@ -10,6 +11,7 @@ enum EHueType
 uint16 snowCarOffset = 0;
 
 bool enabled = true;
+bool online = false;
 
 // STOLEN from https://github.com/ezio416/tm-current-effects/blob/465faccb580b4883eb0ec5502885dc0f2b2dfb1f/src/Effects.as#L247
 int GetCar(CSceneVehicleVisState@ State) {
@@ -90,8 +92,13 @@ void Main()
             continue;
         }
         auto vis = VehicleState::GetVis(GetApp().GameScene, player);
-        auto state = vis.AsyncState;
+        if (vis is null)
+        {
+            yield();
+            continue;
+        }
 
+        auto state = vis.AsyncState;
         if (state is null)
         {
             yield();
@@ -105,20 +112,20 @@ void Main()
         {
             if (S_HueType == EHueType::RGB)
             {
-                if (player.LinearHue >= 0.999)
+                player.LinearHue += S_Speed / 100.0;
+            } else if (S_HueType == EHueType::CarSpeed)
+            {
+                player.LinearHue = speed / 1000.0;
+            } else if (S_HueType == EHueType::CarRPMSpeedometer)
+            {
+                if (RPM >= 10000.0)
                 {
                     player.LinearHue = 0;
                 }
                 else
                 {
-                    player.LinearHue += S_Speed / 100.0;
+                    player.LinearHue = -1;
                 }
-            } else if (S_HueType == EHueType::CarSpeed)
-            {
-                player.LinearHue = speed / 1000.0;
-            } else if (S_HueType == EHueType::CarRPM)
-            {
-                player.LinearHue = RPM / 11000.0;
             } else if (S_HueType == EHueType::RGBCarSpeed)
             {
                 if (player.LinearHue >= 0.999)
@@ -129,9 +136,16 @@ void Main()
                 {
                     player.LinearHue += speed / (S_Factor * 1000.0);
                 }
+            } else if (S_HueType == EHueType::CarRPM)
+            {
+                player.LinearHue = RPM / 11000.0;
             } else 
             {
                 player.LinearHue = S_Hue;
+            }
+            if (player.LinearHue >= 0.999)
+            {
+                player.LinearHue = player.LinearHue - 1.0;
             }
         }
         
