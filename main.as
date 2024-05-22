@@ -24,7 +24,7 @@ enum ESpeedometerStatus
     NotSupported
 }
 
-uint16 snowCarOffset = 0;
+uint16 vehicleTypeOffset = 0;
 
 bool enabled = true;
 bool online = false;
@@ -38,38 +38,54 @@ int downShiftVal = 6500;
 
 int64 debugFrame = 0;
 
-// STOLEN from https://github.com/ezio416/tm-current-effects/blob/465faccb580b4883eb0ec5502885dc0f2b2dfb1f/src/Effects.as#L247
+// STOLEN from https://github.com/ezio416/tm-current-effects/
+uint16 GetMemberOffset(const string &in className, const string &in memberName) {
+    const Reflection::MwClassInfo@ type = Reflection::GetType(className);
+
+    if (type is null)
+        throw("Unable to find reflection info for " + className);
+
+    const Reflection::MwMemberInfo@ member = type.GetMember(memberName);
+
+    return member.Offset;
+}
+
+// STOLEN from https://github.com/ezio416/tm-current-effects/
 int GetCar(CSceneVehicleVisState@ State) {
+    if (vehicleTypeOffset == 0)
+        vehicleTypeOffset = GetMemberOffset("CSceneVehicleVisState", "InputSteer") - 8;
+
     CTrackMania@ App = cast<CTrackMania@>(GetApp());
-    CGameCtnChallenge@ Map = App.RootMap;
 
-    // if (Map.VehicleName.GetName() == "CarSnow" || Map.VehicleName.GetName() == "CarRally") {
-    //     return 1;
-    // }
+    CSmArenaClient@ Playground = cast<CSmArenaClient@>(App.CurrentPlayground);
+    if (
+        Playground is null
+        || Playground.Arena is null
+        || Playground.Arena.Resources is null
+        || Playground.Arena.Resources.m_AllGameItemModels.Length == 0
+    )
+        return 0;
 
-    if (Map.VehicleName.GetName() == "CarSnow")
-    {
-        return 1;
-    } else if (Map.VehicleName.GetName() == "CarRally")
-    {
-        return 2;
-    } else if (Map.VehicleName.GetName() == "CarDesert")
-    {
-        return 3;
-    }
+    const uint index = Dev::GetOffsetUint8(State, vehicleTypeOffset);
 
-    if (snowCarOffset == 0) {
-        const Reflection::MwClassInfo@ type = Reflection::GetType("CSceneVehicleVisState");
-
-        if (type is null) {
-            error("Unable to find reflection info for CSceneVehicleVisState!");
+    try {
+        CGameItemModel@ Model = Playground.Arena.Resources.m_AllGameItemModels[index];
+        if (Model is null)
             return 0;
-        }
 
-        snowCarOffset = type.GetMember("InputSteer").Offset - 8;
+        if (Model.Name == "CarSport")
+            return 0;
+        if (Model.Name == "CarSnow")
+            return 1;
+        if (Model.Name == "CarRally")
+            return 2;
+        if (Model.Name == "CarDesert")
+            return 3;
+
+        return 0;
+    } catch {
+        return 0;
     }
-
-    return Dev::GetOffsetUint8(State, snowCarOffset);
 }
 
 void HandleDisabled()
