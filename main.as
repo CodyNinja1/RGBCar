@@ -43,8 +43,19 @@ int GetCar(CSceneVehicleVisState@ State) {
     CTrackMania@ App = cast<CTrackMania@>(GetApp());
     CGameCtnChallenge@ Map = App.RootMap;
 
-    if (Map.VehicleName.GetName() == "CarSnow" || Map.VehicleName.GetName() == "CarRally") {
+    // if (Map.VehicleName.GetName() == "CarSnow" || Map.VehicleName.GetName() == "CarRally") {
+    //     return 1;
+    // }
+
+    if (Map.VehicleName.GetName() == "CarSnow")
+    {
         return 1;
+    } else if (Map.VehicleName.GetName() == "CarRally")
+    {
+        return 2;
+    } else if (Map.VehicleName.GetName() == "CarDesert")
+    {
+        return 3;
     }
 
     if (snowCarOffset == 0) {
@@ -169,6 +180,8 @@ void Main()
         int speed = Math::Abs(int(base));
         int RPM = int(VehicleState::GetRPM(state));
 
+        print(GetCar(state));
+
         if ((GetCar(state) != 0) or S_Stupidity)
         {
             if (S_HueType == EHueType::RGB)
@@ -221,7 +234,7 @@ void Main()
             
             } else if (S_HueType == EHueType::PerCarColor)
             {
-                int car = GetCar();
+                int car = GetCar(state);
                 switch (car)
                 {
                     case 1:
