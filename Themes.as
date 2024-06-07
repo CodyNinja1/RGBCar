@@ -55,7 +55,7 @@ ESpeedometerStatus GetSpeedometerValues()
     return ESpeedometerStatus::NotInstalled;
 }
 
-void HandlePerCarHueTheme(CSmPlayer@ player, CSceneVehicleVisState@ state)
+void HandlePerCarColorTheme(CSceneVehicleVisState@ state)
 {
     VehicleState::VehicleType car = GetCar(state);
     switch (car)
@@ -76,7 +76,7 @@ void HandlePerCarHueTheme(CSmPlayer@ player, CSceneVehicleVisState@ state)
 
 }
 
-void HandleRGBCarSpeedTheme(CSmPlayer@ player, int speed)
+void HandleRGBCarSpeedTheme(int speed)
 {
     if (RGBCar::GetCarHue() >= 0.999)
     {

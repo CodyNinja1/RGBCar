@@ -145,7 +145,7 @@ void HandleMainLoop(CSceneVehicleVisState@ state, CSmPlayer@ player)
                 break;
                 
             case EHueType::RGBCarSpeed:
-                HandleRGBCarSpeedTheme(player, speed);
+                HandleRGBCarSpeedTheme(speed);
                 break;
 
             case EHueType::CarRPM:
@@ -159,7 +159,7 @@ void HandleMainLoop(CSceneVehicleVisState@ state, CSmPlayer@ player)
                 break;
 
             case EHueType::PerCarColor:
-                HandlePerCarHueTheme(player, state);
+                HandlePerCarColorTheme(state);
                 break;
 
             default:
