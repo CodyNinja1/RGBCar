@@ -194,6 +194,7 @@ void HandleMainLoop(CSceneVehicleVisState@ state, CSmPlayer@ player)
 
     if (S_Gradient)
     {
+        // This gradient is linear, it would be better if it used a
         float min, max;
         if (S_MinMaxGradient.x > S_MinMaxGradient.y)
         {
@@ -208,7 +209,7 @@ void HandleMainLoop(CSceneVehicleVisState@ state, CSmPlayer@ player)
 
         // https://stackoverflow.com/questions/5731863/mapping-a-numeric-range-onto-another
         float slope = max - min;
-        float hueGradient = max + slope * RGBCar::GetCarHue();
+        float hueGradient = max + slope * RGBCar::GetCarHue(player);
         RGBCar::SetCarColor(hueGradient);
     }
 }
