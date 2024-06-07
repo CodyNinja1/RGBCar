@@ -20,7 +20,7 @@ void HandleSpeedometerTheme(CSmPlayer@ player, int RPM)
         UI::ShowNotification("You do not have Speedometer installed.", "This option requires you to install Speedometer.", vec4(1, 0, 0, 1));
         speedometerInstalledAlert = true;
         S_HueType = EHueType::PerCarColor;
-    }  
+    }
     else
     {
         UI::ShowNotification("Current Speedometer theme is not supported", "Only Basic and BasicDigital themes are supported", vec4(1, 0, 0, 1), 10000);
@@ -52,7 +52,7 @@ void HandlePerCarColorTheme(CSmPlayer@ player, CSceneVehicleVisState@ state)
 
 void HandleRGBCarSpeedTheme(CSmPlayer@ player, int speed)
 {
-    if (player.LinearHue >= 0.999)
+    if (RGBCar::GetCarHue() >= 0.999)
     {
         player.LinearHue = 0;
     }

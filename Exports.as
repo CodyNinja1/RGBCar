@@ -37,4 +37,13 @@ namespace RGBCar
 
         return player.LinearHue;
     }
+
+    float GetCarHue()
+    {
+        // Returns -1 when player is null.
+        CSmPlayer@ player = VehicleState::GetViewingPlayer();
+        if (player is null) return -1;
+
+        return player.LinearHue;
+    }
 }

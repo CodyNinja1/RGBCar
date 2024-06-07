@@ -189,4 +189,23 @@ void HandleMainLoop(CSceneVehicleVisState@ state, CSmPlayer@ player)
             player.LinearHue = player.LinearHue - 1.0;
         }
     }
+
+    if (S_Gradient)
+    {
+        float min, max;
+        if (S_MinMaxGradient.x > S_MinMaxGradient.y)
+        {
+            max = S_MinMaxGradient.x;
+            min = S_MinMaxGradient.y;
+        }
+        else
+        {
+            max = S_MinMaxGradient.y;
+            min = S_MinMaxGradient.x;
+        }
+
+        float slope = (max - min) / (1 - 0);
+        float hueGradient = max + slope * (RGBCar::GetCarHue() - 0);
+        RGBCar::SetCarColor(hueGradient);
+    }
 }
