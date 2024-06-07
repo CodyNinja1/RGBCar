@@ -124,7 +124,7 @@ void Main()
             continue;
         }
 
-        auto vis = VehicleState::GetVis(GetApp().GameScene, player);
+        CSceneVehicleVis@ vis = VehicleState::GetVis(GetApp().GameScene, player);
         if (vis is null)
         {
             yield();
