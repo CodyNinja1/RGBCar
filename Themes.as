@@ -5,15 +5,15 @@ void HandleSpeedometerTheme(int RPM)
     {
         if (RPM >= upShiftVal)
         {
-            RGBCar::SetCarColor(upShiftHue);
+            RGBCar::SetCarHue(upShiftHue);
         }
         else if (RPM <= downShiftVal)
         {
-            RGBCar::SetCarColor(downShiftHue);
+            RGBCar::SetCarHue(downShiftHue);
         }
         else
         {
-            RGBCar::SetCarColor(app.CurrentProfile.User_LightTrailHue);
+            RGBCar::SetCarHue(app.CurrentProfile.User_LightTrailHue);
         }
     }
     else if (GetSpeedometerValues() == ESpeedometerStatus::NotInstalled)
@@ -55,22 +55,22 @@ ESpeedometerStatus GetSpeedometerValues()
     return ESpeedometerStatus::NotInstalled;
 }
 
-void HandlePerCarColorTheme(CSmPlayer@ player, CSceneVehicleVisState@ state)
+void HandlePerCarHueTheme(CSmPlayer@ player, CSceneVehicleVisState@ state)
 {
     VehicleState::VehicleType car = GetCar(state);
     switch (car)
     {
         case VehicleState::VehicleType::CarSnow:
-            RGBCar::SetCarColor(S_SColor);
+            RGBCar::SetCarHue(S_SColor);
             break;
         case VehicleState::VehicleType::CarRally:
-            RGBCar::SetCarColor(S_RColor);
+            RGBCar::SetCarHue(S_RColor);
             break;
         case VehicleState::VehicleType::CarDesert:
-            RGBCar::SetCarColor(S_DColor);
+            RGBCar::SetCarHue(S_DColor);
             break;
         default:
-            RGBCar::SetCarColor(S_OColor);
+            RGBCar::SetCarHue(S_OColor);
             break;
     }
 
@@ -80,10 +80,10 @@ void HandleRGBCarSpeedTheme(CSmPlayer@ player, int speed)
 {
     if (RGBCar::GetCarHue() >= 0.999)
     {
-        RGBCar::SetCarColor(0);
+        RGBCar::SetCarHue(0);
     }
     else
     {
-        player.LinearHue += speed / (S_Factor * 1000.0);
+        RGBCar::ChangeCarHue(speed / (S_Factor * 1000.0));
     }
 }

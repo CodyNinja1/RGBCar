@@ -1,16 +1,16 @@
 namespace RGBCar 
 {
-    bool SetCarColor(float hue)
+    bool SetCarHue(float hue)
     {
         CSmPlayer@ player = VehicleState::GetViewingPlayer();
         if (player is null) return false;
 
-        RGBCar::SetCarColor(hue);
+        RGBCar::SetCarHue(hue);
         
         return true;
     }
 
-    bool ChangeCarColor(float hue)
+    bool ChangeCarHue(float hue)
     {
         CSmPlayer@ player = VehicleState::GetViewingPlayer();
         if (player is null) return false;

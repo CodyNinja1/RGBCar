@@ -44,7 +44,7 @@ void HandleDisabled()
         return;
     }
 
-    RGBCar::SetCarColor(app.CurrentProfile.User_LightTrailHue);
+    RGBCar::SetCarHue(app.CurrentProfile.User_LightTrailHue);
 }
 
 void OnDisabled()
@@ -137,11 +137,11 @@ void HandleMainLoop(CSceneVehicleVisState@ state, CSmPlayer@ player)
         switch (S_HueType)
         {
             case EHueType::RGB:
-                RGBCar::ChangeCarColor(S_Speed / 100.0);
+                RGBCar::ChangeCarHue(S_Speed / 100.0);
                 break;
                 
             case EHueType::CarSpeed:
-                RGBCar::SetCarColor(S_Speed / 1000.0);
+                RGBCar::SetCarHue(S_Speed / 1000.0);
                 break;
                 
             case EHueType::RGBCarSpeed:
@@ -159,17 +159,17 @@ void HandleMainLoop(CSceneVehicleVisState@ state, CSmPlayer@ player)
                 break;
 
             case EHueType::PerCarColor:
-                HandlePerCarColorTheme(player, state);
+                HandlePerCarHueTheme(player, state);
                 break;
 
             default:
-                RGBCar::SetCarColor(S_Hue);
+                RGBCar::SetCarHue(S_Hue);
                 break;
         }
         
-        if (player.LinearHue >= 0.999)
+        if (RGBCar::GetCarHue(player) >= 0.999)
         {
-            RGBCar::ChangeCarColor(-1.0);
+            RGBCar::ChangeCarHue(-1.0);
         }
     }
 
@@ -204,6 +204,6 @@ void HandleMainLoop(CSceneVehicleVisState@ state, CSmPlayer@ player)
         // https://stackoverflow.com/questions/5731863/mapping-a-numeric-range-onto-another
         float slope = max - min;
         float hueGradient = max + slope * RGBCar::GetCarHue(player);
-        RGBCar::SetCarColor(hueGradient);
+        RGBCar::SetCarHue(hueGradient);
     }
 }
