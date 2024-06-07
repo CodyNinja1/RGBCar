@@ -13,7 +13,7 @@ enum ESpeedometerStatus
     NotSupported
 }
 
-const float MIN_DIFF_GRADIENT = 0.03;
+const float MIN_DIFF_GRADIENT = 0.1;
 
 bool enabled = true;
 bool online = false;
@@ -61,7 +61,7 @@ void RenderMenu()
 {
     vec4 rgbaMenu = UI::HSV(hueMenu, 1, 1);
     string opColor = Text::FormatOpenplanetColor(rgbaMenu.xyz);
-    string label = opColor + Icons::Car + " \\$zRGBCar";
+    string label = opColor + Icons::Car + " RGBCar";
     if (UI::MenuItem(label, tostring(S_HueType), enabled))
     {
         enabled = !enabled;
@@ -70,12 +70,17 @@ void RenderMenu()
 
 void Render()
 {
-    if (hueMenu > 1.0)
+    if ((S_MaxG - S_MinG) < MIN_DIFF_GRADIENT)
     {
-        hueMenu = -0.01;
+        S_MaxG = MIN_DIFF_GRADIENT + S_MinG;   
     }
 
-    hueMenu += 0.01;
+    if (hueMenu > 1.0)
+    {
+        hueMenu = -0.001;
+    }
+
+    hueMenu += 0.001;
 }
 
 void Main()
@@ -173,37 +178,12 @@ void HandleMainLoop(CSceneVehicleVisState@ state, CSmPlayer@ player)
         }
     }
 
-    if (S_Gradient)
+    if (S_Gradient and (S_HueType == EHueType::CarSpeed or S_HueType == EHueType::CarRPM))
     {
-        if ((S_MinMaxGradient.x - S_MinMaxGradient.y) < MIN_DIFF_GRADIENT)
-        {
-            if (S_MinMaxGradient.x > S_MinMaxGradient.y)
-            {
-                S_MinMaxGradient.x += MIN_DIFF_GRADIENT;
-                S_MinMaxGradient.x
-            }
-            else
-            {
-                S_MinMaxGradient.y += MIN_DIFF_GRADIENT;
-            }
-        }
-
         // This gradient is linear, it would be better if it used a non-linear gradient
-        float min, max;
-        if (S_MinMaxGradient.x > S_MinMaxGradient.y)
-        {
-            max = S_MinMaxGradient.x;
-            min = S_MinMaxGradient.y;
-        }
-        else
-        {
-            max = S_MinMaxGradient.y;
-            min = S_MinMaxGradient.x;
-        }
-
         // https://stackoverflow.com/questions/5731863/mapping-a-numeric-range-onto-another
-        float slope = max - min;
-        float hueGradient = max + slope * RGBCar::GetCarHue(player);
+        float slope = S_MaxG - S_MinG;
+        float hueGradient = S_MaxG + slope * RGBCar::GetCarHue();
         RGBCar::SetCarHue(hueGradient);
     }
 }
