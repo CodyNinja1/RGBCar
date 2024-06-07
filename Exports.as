@@ -5,7 +5,7 @@ namespace RGBCar
         CSmPlayer@ player = VehicleState::GetViewingPlayer();
         if (player is null) return false;
 
-        player.LinearHue = hue;
+        RGBCar::SetCarColor(hue);
         
         return true;
     }

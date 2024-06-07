@@ -1,18 +1,19 @@
-void HandleSpeedometerTheme(CSmPlayer@ player, int RPM)
+void HandleSpeedometerTheme(int RPM)
 {
+    CGameCtnApp@ app = cast<CGameCtnApp>(GetApp());
     if (GetSpeedometerValues() == ESpeedometerStatus::Success)
     {
         if (RPM >= upShiftVal)
         {
-            player.LinearHue = upShiftHue;
+            RGBCar::SetCarColor(upShiftHue);
         }
         else if (RPM <= downShiftVal)
         {
-            player.LinearHue = downShiftHue;
+            RGBCar::SetCarColor(downShiftHue);
         }
         else
         {
-            player.LinearHue = 0;
+            RGBCar::SetCarColor(app.CurrentProfile.User_LightTrailHue);
         }
     }
     else if (GetSpeedometerValues() == ESpeedometerStatus::NotInstalled)
@@ -29,22 +30,47 @@ void HandleSpeedometerTheme(CSmPlayer@ player, int RPM)
     }
 }
 
+ESpeedometerStatus GetSpeedometerValues()
+{
+    for (int i = 0; i < Meta::AllPlugins().Length; i++)
+    {
+        auto plugin = Meta::AllPlugins()[i];
+
+        if (plugin.SiteID == 207) // https://openplanet.dev/plugin/207
+        {
+            int type = plugin.GetSetting("Theme").ReadEnum();
+            string typeStr = tostring(ESpeedometerType(type));
+
+            if (typeStr == "Ascension2023" || typeStr == "TrackmaniaTurbo") return ESpeedometerStatus::NotSupported;
+
+            vec4 UpShift = plugin.GetSetting(typeStr + "GaugeRPMUpshiftColor").ReadVec4();
+            upShiftHue = UI::ToHSV(UpShift.x, UpShift.y, UpShift.z).x;
+
+            vec4 DownShift = plugin.GetSetting(typeStr + "GaugeRPMDownshiftColor").ReadVec4();
+            downShiftHue = UI::ToHSV(DownShift.x, DownShift.y, DownShift.z).x;
+
+            return ESpeedometerStatus::Success;
+        }
+    }
+    return ESpeedometerStatus::NotInstalled;
+}
+
 void HandlePerCarColorTheme(CSmPlayer@ player, CSceneVehicleVisState@ state)
 {
     VehicleState::VehicleType car = GetCar(state);
     switch (car)
     {
         case VehicleState::VehicleType::CarSnow:
-            player.LinearHue = S_SColor;
+            RGBCar::SetCarColor(S_SColor);
             break;
         case VehicleState::VehicleType::CarRally:
-            player.LinearHue = S_RColor;
+            RGBCar::SetCarColor(S_RColor);
             break;
         case VehicleState::VehicleType::CarDesert:
-            player.LinearHue = S_DColor;
+            RGBCar::SetCarColor(S_DColor);
             break;
         default:
-            player.LinearHue = S_OColor;
+            RGBCar::SetCarColor(S_OColor);
             break;
     }
 
@@ -54,7 +80,7 @@ void HandleRGBCarSpeedTheme(CSmPlayer@ player, int speed)
 {
     if (RGBCar::GetCarHue() >= 0.999)
     {
-        player.LinearHue = 0;
+        RGBCar::SetCarColor(0);
     }
     else
     {

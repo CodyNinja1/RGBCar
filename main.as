@@ -13,9 +13,13 @@ enum ESpeedometerStatus
     NotSupported
 }
 
+const float MIN_DIFF_GRADIENT = 0.03;
+
 bool enabled = true;
 bool online = false;
+
 bool speedometerInstalledAlert = true;
+bool rpmDeprecationAlert = false;
 
 float upShiftHue = 0.0;
 int upShiftVal = 10000;
@@ -72,31 +76,6 @@ void Render()
     }
 
     hueMenu += 0.01;
-}
-
-ESpeedometerStatus GetSpeedometerValues()
-{
-    for (int i = 0; i < Meta::AllPlugins().Length; i++)
-    {
-        auto plugin = Meta::AllPlugins()[i];
-
-        if (plugin.SiteID == 207) // https://openplanet.dev/plugin/207
-        {
-            int type = plugin.GetSetting("Theme").ReadEnum();
-            string typeStr = tostring(ESpeedometerType(type));
-
-            if (typeStr == "Ascension2023" || typeStr == "TrackmaniaTurbo") return ESpeedometerStatus::NotSupported;
-
-            vec4 UpShift = plugin.GetSetting(typeStr + "GaugeRPMUpshiftColor").ReadVec4();
-            upShiftHue = UI::ToHSV(UpShift.x, UpShift.y, UpShift.z).x;
-
-            vec4 DownShift = plugin.GetSetting(typeStr + "GaugeRPMDownshiftColor").ReadVec4();
-            downShiftHue = UI::ToHSV(DownShift.x, DownShift.y, DownShift.z).x;
-
-            return ESpeedometerStatus::Success;
-        }
-    }
-    return ESpeedometerStatus::NotInstalled;
 }
 
 void Main()
@@ -165,22 +144,24 @@ void HandleMainLoop(CSceneVehicleVisState@ state, CSmPlayer@ player)
                 RGBCar::SetCarColor(S_Speed / 1000.0);
                 break;
                 
-            case EHueType::CarRPMSpeedometer:
-                HandleSpeedometerTheme(player, RPM);
-                break;
-                
             case EHueType::RGBCarSpeed:
                 HandleRGBCarSpeedTheme(player, speed);
                 break;
-                
+
             case EHueType::CarRPM:
-                RGBCar::SetCarColor(RPM / 11000.0);
+                if (rpmDeprecationAlert) break;
+                S_HueType = EHueType::CarRPMSpeedometer;
+                UI::ShowNotification("CarRPM is deprecated", "Please use CarRPMSpeedometer theme instead.");
+                rpmDeprecationAlert = true;
+
+            case EHueType::CarRPMSpeedometer:
+                HandleSpeedometerTheme(RPM);
                 break;
-                
+
             case EHueType::PerCarColor:
                 HandlePerCarColorTheme(player, state);
                 break;
-                
+
             default:
                 RGBCar::SetCarColor(S_Hue);
                 break;
@@ -194,7 +175,20 @@ void HandleMainLoop(CSceneVehicleVisState@ state, CSmPlayer@ player)
 
     if (S_Gradient)
     {
-        // This gradient is linear, it would be better if it used a
+        if ((S_MinMaxGradient.x - S_MinMaxGradient.y) < MIN_DIFF_GRADIENT)
+        {
+            if (S_MinMaxGradient.x > S_MinMaxGradient.y)
+            {
+                S_MinMaxGradient.x += MIN_DIFF_GRADIENT;
+                S_MinMaxGradient.x
+            }
+            else
+            {
+                S_MinMaxGradient.y += MIN_DIFF_GRADIENT;
+            }
+        }
+
+        // This gradient is linear, it would be better if it used a non-linear gradient
         float min, max;
         if (S_MinMaxGradient.x > S_MinMaxGradient.y)
         {
