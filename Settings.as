@@ -12,13 +12,13 @@ enum EHueType
 [Setting name="Change color with StadiumCar" category="Base options"]
 bool S_Stupidity = true;
 
-[Setting name="Use custom gradient" category="Gradient"]
+[Setting name="Use custom gradient" category="Gradient" hidden]
 bool S_Gradient = false;
 
-[Setting name="Gradient min." category="Gradient" min=0.0 max=1.0]
+[Setting name="Gradient min." category="Gradient" min=0.0 max=1.0 hidden]
 float S_MinG = 0.0;
 
-[Setting name="Gradient max." category="Gradient" min=0.0 max=1.0]
+[Setting name="Gradient max." category="Gradient" min=0.0 max=1.0 hidden]
 float S_MaxG = 1.0;
 
 [Setting name="Color effect type" category="Base options"]
@@ -45,7 +45,12 @@ float S_DColor = 0.141;
 [Setting name="Other car color" category="Per-car colors" min=0.0 max=1.0 hidden]
 float S_OColor = 0.765;
 
-float AddSettingsOptionFloat(string name, float&in ref, float min, float max)
+bool AddSettingsOptionBool(string name, bool&in ref)
+{
+    return UI::Checkbox(name, ref);
+}
+
+float AddSettingsOptionFloat(string name, float&in ref, float min = 0, float max = 1)
 {
     return UI::SliderFloat(name, ref, min, max);
 }
@@ -56,30 +61,49 @@ void AddColorPreview(float hue)
     UI::ButtonColored("   ", hue, 1, 1);
 }
 
-[SettingsTab name="Per-car colors" icon="Tag" order="1"]
+[SettingsTab name="Per-car colors" icon="Car" order="1"]
 void RenderPerCarColors()
 {
-    float scol = AddSettingsOptionFloat("CarSnow Color  ", S_SColor, 0, 1);
+    float scol = AddSettingsOptionFloat("CarSnow Color  ", S_SColor);
     S_SColor = scol;
     AddColorPreview(S_SColor);
 
-    float rcol = AddSettingsOptionFloat("CarRally Color   ", S_RColor, 0, 1);
+    float rcol = AddSettingsOptionFloat("CarRally Color   ", S_RColor);
     S_RColor = rcol;
     AddColorPreview(S_RColor);
     
-    float dcol = AddSettingsOptionFloat("CarDesert Color", S_DColor, 0, 1);
+    float dcol = AddSettingsOptionFloat("CarDesert Color", S_DColor);
     S_DColor = dcol;
     AddColorPreview(S_DColor);
     
-    float ocol = AddSettingsOptionFloat("OtherCar Color ", S_OColor, 0, 1);
+    float ocol = AddSettingsOptionFloat("OtherCar Color ", S_OColor);
     S_OColor = ocol;
     AddColorPreview(S_OColor);
+}
+
+[SettingsTab name="Gradient" icon="Flag" order="2"]
+void RenderGraident()
+{
+    bool g = AddSettingsOptionBool("Use custom gradient", S_Gradient);
+    S_Gradient = g;
+
+    UI::Separator();
+
+    float ming = AddSettingsOptionFloat("Minimum   ", S_MinG);
+    S_MinG = ming;
+    AddColorPreview(S_MinG);
+
+    float maxg = AddSettingsOptionFloat("Maxiumum", S_MaxG, 0, 1);
+    S_MaxG = maxg;
+    AddColorPreview(S_MaxG);
 }
 
 [SettingsTab name="Credits" icon="Heart" order="0"]
 void RenderCredits()
 {
     UI::Text("RGBCar v" + Meta::ExecutingPlugin().Version + "");
+
+    UI::Separator();
 
     UI::Text("Made with " + (ee ? "\\$0f0" : "\\$f00") + Icons::Heartbeat + "\\$z by");
     if (UI::IsItemHovered())
@@ -99,6 +123,8 @@ void RenderCredits()
         app.ManiaPlanetScriptAPI.OpenLink("https://github.com/CodyNinja1/", CGameManiaPlanetScriptAPI::ELinkType::ExternalBrowser);
     }
     UI::PopStyleColor();
+
+    UI::Separator();
 
     UI::Text("If you have theme suggestions or new features, make an issue on");
     UI::SameLine();
