@@ -154,10 +154,8 @@ void HandleMainLoop(CSceneVehicleVisState@ state, CSmPlayer@ player)
                 break;
 
             case EHueType::CarRPM:
-                if (rpmDeprecationAlert) break;
-                S_HueType = EHueType::CarRPMSpeedometer;
-                UI::ShowNotification("CarRPM is deprecated", "Please use CarRPMSpeedometer theme instead.");
-                rpmDeprecationAlert = true;
+                RGBCar::SetCarHue(RPM / 11000.0);
+                break;
 
             case EHueType::CarRPMSpeedometer:
                 HandleSpeedometerTheme(RPM);
