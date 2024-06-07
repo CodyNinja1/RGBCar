@@ -155,38 +155,40 @@ void HandleMainLoop(CSceneVehicleVisState@ state, CSmPlayer@ player)
 
     if ((GetCar(state) != VehicleState::VehicleType::CarSport) or S_Stupidity)
     {
-        if (S_HueType == EHueType::RGB)
+        switch (S_HueType)
         {
-            RGBCar::ChangeCarColor(S_Speed / 100.0);
-        } 
-        else if (S_HueType == EHueType::CarSpeed)
-        {
-            RGBCar::SetCarColor(S_Speed / 1000.0);
-        } 
-        else if (S_HueType == EHueType::CarRPMSpeedometer)
-        {
-            HandleSpeedometerTheme(player, RPM);
-        } 
-        else if (S_HueType == EHueType::RGBCarSpeed)
-        {
-            HandleRGBCarSpeedTheme(player, speed);
-        } 
-        else if (S_HueType == EHueType::CarRPM)
-        {
-            RGBCar::SetCarColor(RPM / 11000.0);
-        } 
-        else if (S_HueType == EHueType::PerCarColor)
-        {
-            HandlePerCarColorTheme(player, state);
-        } 
-        else
-        {
-            player.LinearHue = S_Hue;
+            case EHueType::RGB:
+                RGBCar::ChangeCarColor(S_Speed / 100.0);
+                break;
+                
+            case EHueType::CarSpeed:
+                RGBCar::SetCarColor(S_Speed / 1000.0);
+                break;
+                
+            case EHueType::CarRPMSpeedometer:
+                HandleSpeedometerTheme(player, RPM);
+                break;
+                
+            case EHueType::RGBCarSpeed:
+                HandleRGBCarSpeedTheme(player, speed);
+                break;
+                
+            case EHueType::CarRPM:
+                RGBCar::SetCarColor(RPM / 11000.0);
+                break;
+                
+            case EHueType::PerCarColor:
+                HandlePerCarColorTheme(player, state);
+                break;
+                
+            default:
+                RGBCar::SetCarColor(S_Hue);
+                break;
         }
         
         if (player.LinearHue >= 0.999)
         {
-            player.LinearHue = player.LinearHue - 1.0;
+            RGBCar::ChangeCarColor(-1.0);
         }
     }
 
@@ -204,8 +206,9 @@ void HandleMainLoop(CSceneVehicleVisState@ state, CSmPlayer@ player)
             min = S_MinMaxGradient.x;
         }
 
-        float slope = (max - min) / (1 - 0);
-        float hueGradient = max + slope * (RGBCar::GetCarHue() - 0);
+        // https://stackoverflow.com/questions/5731863/mapping-a-numeric-range-onto-another
+        float slope = max - min;
+        float hueGradient = max + slope * RGBCar::GetCarHue();
         RGBCar::SetCarColor(hueGradient);
     }
 }
