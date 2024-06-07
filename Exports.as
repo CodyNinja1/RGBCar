@@ -33,6 +33,7 @@ namespace RGBCar
 
     float GetCarHue(CSmPlayer@ player)
     {
+        // Returns -1 when player is null.
         if (player is null) return -1.0;
 
         return player.LinearHue;
