@@ -19,7 +19,7 @@ void EasterEgg()
 {
     if (ee) return;
 
-    print("Randomizing settings");
+    
     UI::ShowNotification("Easter Egg Activated", ":3");
 
     S_Stupidity = randBool();

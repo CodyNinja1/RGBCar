@@ -146,7 +146,7 @@ void HandleMainLoop(CSceneVehicleVisState@ state, CSmPlayer@ player)
                 break;
                 
             case EHueType::CarSpeed:
-                RGBCar::SetCarHue(S_Speed / 1000.0);
+                RGBCar::SetCarHue(speed / 1000.0);
                 break;
                 
             case EHueType::RGBCarSpeed:
@@ -182,8 +182,9 @@ void HandleMainLoop(CSceneVehicleVisState@ state, CSmPlayer@ player)
     {
         // This gradient is linear, it would be better if it used a non-linear gradient
         // https://stackoverflow.com/questions/5731863/mapping-a-numeric-range-onto-another
-        float slope = S_MaxG - S_MinG;
-        float hueGradient = S_MaxG + slope * RGBCar::GetCarHue();
+        double slope = (S_MaxG - S_MinG) / (1 - 0);
+        float hueGradient = S_MinG + slope * RGBCar::GetCarHue();
         RGBCar::SetCarHue(hueGradient);
     }
+    
 }
