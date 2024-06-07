@@ -1,38 +1,40 @@
-bool SetCarColor(float hue)
+namespace RGBCar 
 {
-    CSmPlayer@ player = VehicleState::GetViewingPlayer();
-    if (player is null) return false;
+    bool SetCarColor(float hue)
+    {
+        CSmPlayer@ player = VehicleState::GetViewingPlayer();
+        if (player is null) return false;
 
-    player.LinearHue = hue;
-    
-    return true;
-}
+        player.LinearHue = hue;
+        
+        return true;
+    }
 
-bool ChangeCarColor(float hue)
-{
-    CSmPlayer@ player = VehicleState::GetViewingPlayer();
-    if (player is null) return false;
+    bool ChangeCarColor(float hue)
+    {
+        CSmPlayer@ player = VehicleState::GetViewingPlayer();
+        if (player is null) return false;
 
-    player.LinearHue += hue;
+        player.LinearHue += hue;
 
-    return true;
-}
+        return true;
+    }
 
-bool IsPlayerInColorableCar()
-{
-    CSmPlayer@ player = VehicleState::GetViewingPlayer();
-    if (player is null) return false;
+    bool IsPlayerInColorableCar()
+    {
+        CSmPlayer@ player = VehicleState::GetViewingPlayer();
+        if (player is null) return false;
 
-    auto vis = VehicleState::GetVis(GetApp().GameScene, player);
-    auto state = vis.AsyncState;
+        CSceneVehicleVis@ vis = VehicleState::GetVis(GetApp().GameScene, player);
+        CSceneVehicleVisState@ state = vis.AsyncState;
 
-    return GetCar(state) != 0;
-}
+        return GetCar(state) != 0;
+    }
 
-float GetCarHue(CSmPlayer@ player)
-{
-    CSmPlayer@ player = VehicleState::GetViewingPlayer();
-    if (player is null) return -1.0;
+    float GetCarHue(CSmPlayer@ player)
+    {
+        if (player is null) return -1.0;
 
-    return player.LinearHue;
+        return player.LinearHue;
+    }
 }

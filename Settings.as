@@ -1,5 +1,22 @@
+enum EHueType
+{
+    CarSpeed,
+    CarRPM,
+    CarRPMSpeedometer,
+    RGB,
+    RGBCarSpeed,
+    FixedColor,
+    PerCarColor
+}
+
 [Setting name="Change color with StadiumCar" category="Base options"]
 bool S_Stupidity = true;
+
+[Setting name="Use custom gradient" category="Gradient"]
+bool S_Gradient = false;
+
+[Setting name="Gradient Miniumum and Maximum" category="Gradient"]
+vec2 S_MinMaxGradient = vec2(0, 1);
 
 [Setting name="Color effect type" category="Base options"]
 EHueType S_HueType = EHueType::RGB;
