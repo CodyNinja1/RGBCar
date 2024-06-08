@@ -18,7 +18,6 @@ EHueType randType()
 void EasterEgg()
 {
     if (ee) return;
-
     
     UI::ShowNotification("Easter Egg Activated", ":3");
 
