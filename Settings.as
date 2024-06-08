@@ -93,7 +93,7 @@ void RenderGraident()
     S_MinG = ming;
     AddColorPreview(S_MinG);
 
-    float maxg = AddSettingsOptionFloat("Maxiumum", S_MaxG, 0, 1);
+    float maxg = AddSettingsOptionFloat("Maximum", S_MaxG, 0, 1);
     S_MaxG = maxg;
     AddColorPreview(S_MaxG);
 }

@@ -7,7 +7,7 @@ bool randBool()
 
 float randFloat(float min = 0, float max = 1)
 {
-    return Math::Rand(min, max + 0.05);
+    return Math::Rand(min, max);
 }
 
 EHueType randType()
