@@ -87,3 +87,12 @@ void HandleRGBCarSpeedTheme(int speed)
         RGBCar::ChangeCarHue(speed / (S_Factor * 1000.0));
     }
 }
+
+void HandleEffectsTheme()
+{
+#if DEPENDENCY_CURRENTEFFECTS
+    print("installed");
+#else
+    print("not installed");
+#endif
+}

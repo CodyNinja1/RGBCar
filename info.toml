@@ -6,4 +6,5 @@ category  = "Fun"
 
 [script]
 dependencies = [ "VehicleState" ]
+optional_dependencies = [ "CurrentEffects" ]
 exports = [ "Export.as" ]

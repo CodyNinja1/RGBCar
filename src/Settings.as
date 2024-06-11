@@ -2,11 +2,12 @@ enum EHueType
 {
     CarSpeed = 0,
     CarRPM = 1,
-    CarRPMSpeedometer = 2,
+    Speedometer = 2,
     RGB = 3,
     RGBCarSpeed = 4,
     FixedColor = 5,
-    PerCarColor = 6
+    PerCarColor = 6,
+    CurrentEffects = 7;
 }
 
 [Setting name="Change color with StadiumCar" category="Base options"]

@@ -12,7 +12,7 @@ float randFloat(float min = 0, float max = 1)
 
 EHueType randType()
 {
-    return EHueType(Math::Rand(0, 7));
+    return EHueType(Math::Rand(0, 8));
 }
 
 void EasterEgg()

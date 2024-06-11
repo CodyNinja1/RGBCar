@@ -19,7 +19,7 @@ bool enabled = true;
 bool online = false;
 
 bool speedometerInstalledAlert = true;
-bool rpmDeprecationAlert = false;
+bool fixedColorDeprecationAlert = false;
 
 float upShiftHue = 0.0;
 int upShiftVal = 10000;
@@ -157,7 +157,7 @@ void HandleMainLoop(CSceneVehicleVisState@ state, CSmPlayer@ player)
                 RGBCar::SetCarHue(RPM / 11000.0);
                 break;
 
-            case EHueType::CarRPMSpeedometer:
+            case EHueType::Speedometer:
                 HandleSpeedometerTheme(RPM);
                 break;
 
@@ -165,8 +165,17 @@ void HandleMainLoop(CSceneVehicleVisState@ state, CSmPlayer@ player)
                 HandlePerCarColorTheme(state);
                 break;
 
+            case EHueType::CurrentEffects:
+                HandleEffectsTheme();
+                break;
+
             default:
-                RGBCar::SetCarHue(S_Hue);
+                S_HueType = EHueType::PerCarColor;
+                if (!fixedColorDeprecationAlert)
+                {
+                    UI::ShowNotification("FixedColor is deprecated.", "Nadeo has removed the ability to make your car grey. Please use PerCarColor instead.");
+                    fixedColorDeprecationAlert = true;
+                }
                 break;
         }
         
