@@ -10,9 +10,19 @@ float randFloat(float min = 0, float max = 1)
     return Math::Rand(min, max);
 }
 
-EHueType randType()
+vec3 randVec3()
+{
+    return vec3(randFloat(), randFloat(), randFloat());
+}
+
+EHueType randHueType()
 {
     return EHueType(Math::Rand(0, 8));
+}
+
+EDossard randDossard()
+{
+    return EDossard(Math::Rand(0, 3));
 }
 
 void EasterEgg()
@@ -25,7 +35,7 @@ void EasterEgg()
     S_Gradient = randBool();
     S_MinG = randFloat();
     S_MaxG = randFloat();
-    S_HueType = randType();
+    S_HueType = randHueType();
     S_Speed = randFloat(0, 10);
     S_Hue = randFloat();
     S_Factor = randFloat(0, 20);
@@ -33,6 +43,13 @@ void EasterEgg()
     S_RColor = randFloat();
     S_DColor = randFloat();
     S_OColor = randFloat();
+    S_EpicColor = randFloat();
+    S_MasterColor = randFloat();
+    S_Dossard = randBool();
+    S_DossardType = randDossard();
+    S_AutoStunt = randBool();
+    S_FTrails = randBool();
+    S_DossardColor = randVec3();
 
     ee = true;
 }
