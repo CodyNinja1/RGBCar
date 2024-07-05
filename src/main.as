@@ -1,3 +1,9 @@
+uint lastAirTime = 0;
+uint lastGroundTime = 0;
+
+uint AirTime = 0;
+uint GroundTime = 0;
+
 enum ESpeedometerType
 {
     Basic = 0,
@@ -108,6 +114,8 @@ void Main()
             continue;
         }
 
+        cast<CSmScriptPlayer>(player.ScriptAPI).ForceLightTrail = S_FTrails;
+
         CSceneVehicleVis@ vis = VehicleState::GetVis(GetApp().GameScene, player);
         if (vis is null)
         {
@@ -134,11 +142,18 @@ void HandleMainLoop(CSceneVehicleVisState@ state, CSmPlayer@ player)
 
     base = state.WorldVel.Length() * 3.6f;
 
-    int speed = Math::Abs(int(base));
+    int speed = int(base);
     int RPM = int(VehicleState::GetRPM(state));
 
     if ((GetCar(state) != VehicleState::VehicleType::CarSport) or S_Stupidity)
     {
+        if (S_AutoStunt and (GetApp().RootMap.MapType.Contains("TM_Stunt")))
+        {
+            HandleStuntTheme(player, state);
+            HandleModifications(player);
+            return;
+        }
+
         switch (S_HueType)
         {
             case EHueType::RGB:
@@ -165,9 +180,14 @@ void HandleMainLoop(CSceneVehicleVisState@ state, CSmPlayer@ player)
                 HandlePerCarColorTheme(state);
                 break;
 
-            case EHueType::CurrentEffects:
-                HandleEffectsTheme();
+            case EHueType::Stunt:
+                HandleStuntTheme(player, state);
                 break;
+#if DEPENDENCY_BONK
+            case EHueType::Bonk:
+                HandleBonkTheme();
+                break;
+#endif
 
             default:
                 S_HueType = EHueType::PerCarColor;
@@ -185,6 +205,11 @@ void HandleMainLoop(CSceneVehicleVisState@ state, CSmPlayer@ player)
         }
     }
 
+    HandleModifications(player);
+}
+
+void HandleModifications(CSmPlayer@ player)
+{
     if (S_Gradient and (S_HueType == EHueType::CarSpeed or S_HueType == EHueType::CarRPM))
     {
         // This gradient is linear, it would be better if it used a non-linear gradient
@@ -193,5 +218,22 @@ void HandleMainLoop(CSceneVehicleVisState@ state, CSmPlayer@ player)
         float hueGradient = S_MinG + slope * RGBCar::GetCarHue();
         RGBCar::SetCarHue(hueGradient);
     }
-    
+
+    if (S_Dossard)
+    {
+        if (S_DossardType == EDossard::SameAsCarColor)
+        {
+            cast<CSmScriptPlayer>(player.ScriptAPI).Dossard_Color = UI::HSV(RGBCar::GetCarHue(), 1, 1).xyz;
+        } else if (S_DossardType == EDossard::OppositeCarColor)
+        {
+            cast<CSmScriptPlayer>(player.ScriptAPI).Dossard_Color = UI::HSV(Math::Abs(RGBCar::GetCarHue() - 0.5), 1, 1).xyz;
+        } else
+        {
+            cast<CSmScriptPlayer>(player.ScriptAPI).Dossard_Color = S_DossardColor;
+        }
+    }
+    else
+    {
+        cast<CSmScriptPlayer>(player.ScriptAPI).Dossard_Color = vec3(1, 1, 1);
+    }
 }
