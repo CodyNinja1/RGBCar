@@ -1,196 +1,133 @@
-enum EHueType
+void HandleSpeedometerTheme(int RPM)
 {
-    CarSpeed = 0,
-    CarRPM = 1,
-    RGB = 3,
-    RGBCarSpeed = 4,
-    FixedColor = 5,
-    PerCarColor = 6,
-    Stunt = 7,
-#if DEPENDENCY_BONK
-    Bonk = 8,
-#endif
-    Speedometer = 2,
-}
-
-enum EDossard
-{
-    SameAsCarColor = 0,
-    OppositeCarColor = 1,
-    SeperateDossardColor = 2
-}
-
-[Setting name="Change color with StadiumCar" category="Base options"]
-bool S_Stupidity = true;
-
-[Setting name="Force trails" category="Base options"]
-bool S_FTrails = false;
-
-[Setting name="Set dossard color" category="Base options"]
-bool S_Dossard = false;
-
-[Setting name="Dossard type" category="Dossard"]
-EDossard S_DossardType = EDossard::SameAsCarColor;
-
-[Setting name="Dossard color" category="Dossard" color]
-vec3 S_DossardColor = vec3(1, 0, 0.6);
-
-[Setting name="Automatically set effect type to Stunt on stunt maps" category="Base options"]
-bool S_AutoStunt = true;
-
-[Setting name="Use custom gradient" category="Gradient" hidden]
-bool S_Gradient = false;
-
-[Setting name="Gradient min." category="Gradient" min=0.0 max=1.0 hidden]
-float S_MinG = 0.0;
-
-[Setting name="Gradient max." category="Gradient" min=0.0 max=1.0 hidden]
-float S_MaxG = 1.0;
-
-[Setting name="Color effect type" category="Base options"]
-EHueType S_HueType = EHueType::RGB;
-
-[Setting name="RGB speed" category="Base options" min=0.01 max=10.0]
-float S_Speed = 1.0;
-
-[Setting name="Color" category="Base options" min=0.0 max=1.0 hidden]
-float S_Hue = 0.0;
-
-[Setting name="RGBCarSpeed factor" category="Base options" min=-20.0 max=20.0]
-float S_Factor = 5.0;
-
-[Setting name="CarSnow color" category="Per-car colors" min=0.0 max=1.0 hidden]
-float S_SColor = 0.530;
-
-[Setting name="CarRally color" category="Per-car colors" min=0.0 max=1.0 hidden]
-float S_RColor = 0.094;
-
-[Setting name="CarDesert color" category="Per-car colors" min=0.0 max=1.0 hidden]
-float S_DColor = 0.141;
-
-[Setting name="Other car color" category="Per-car colors" min=0.0 max=1.0 hidden]
-float S_OColor = 0.765;
-
-[Setting name="Master stunt color" category="Stunts" min=0.0 max=1.0 hidden]
-float S_MasterColor = 0.3;
-
-[Setting name="Epic stunt color" category="Stunts" min=0.0 max=1.0 hidden]
-float S_EpicColor = 0.6;
-
-#if DEPENDENCY_BONK
-[Setting name="Bonk color" category="Bonk" min=0.0 max=1.0 hidden]
-float S_BonkColor = 0.5;
-#endif
-
-bool AddSettingsOptionBool(string name, bool&in ref)
-{
-    return UI::Checkbox(name, ref);
-}
-
-float AddSettingsOptionFloat(string name, float&in ref, float min = 0, float max = 1)
-{
-    return UI::SliderFloat(name, ref, min, max);
-}
-
-void AddColorPreview(float hue)
-{
-    UI::SameLine();
-    UI::ButtonColored("   ", hue, 1, 1);
-}
-
-[SettingsTab name="Per-car colors" icon="Car" order="1"]
-void RenderPerCarColors()
-{
-    float scol = AddSettingsOptionFloat("CarSnow Color", S_SColor);
-    S_SColor = scol;
-    AddColorPreview(S_SColor);
-
-    float rcol = AddSettingsOptionFloat("CarRally Color", S_RColor);
-    S_RColor = rcol;
-    AddColorPreview(S_RColor);
-    
-    float dcol = AddSettingsOptionFloat("CarDesert Color", S_DColor);
-    S_DColor = dcol;
-    AddColorPreview(S_DColor);
-    
-    float ocol = AddSettingsOptionFloat("OtherCar Color", S_OColor);
-    S_OColor = ocol;
-    AddColorPreview(S_OColor);
-}
-
-[SettingsTab name="Gradient" icon="Flag" order="2"]
-void RenderGraident()
-{
-    bool g = AddSettingsOptionBool("Use custom gradient", S_Gradient);
-    S_Gradient = g;
-
-    UI::Separator();
-
-    float ming = AddSettingsOptionFloat("Minimum", S_MinG);
-    S_MinG = ming;
-    AddColorPreview(S_MinG);
-
-    float maxg = AddSettingsOptionFloat("Maximum", S_MaxG, 0, 1);
-    S_MaxG = maxg;
-    AddColorPreview(S_MaxG);
-}
-
-[SettingsTab name="Credits" icon="Heart" order="0"]
-void RenderCredits()
-{
-    UI::Text("RGBCar v" + Meta::ExecutingPlugin().Version + "");
-
-    UI::Separator();
-
-    UI::Text("Made with " + (ee ? "\\$0f0" : "\\$f00") + Icons::Heartbeat + "\\$z by");
-    if (UI::IsItemHovered())
+    CGameCtnApp@ app = cast<CGameCtnApp>(GetApp());
+    if (GetSpeedometerValues() == ESpeedometerStatus::Success)
     {
-        if (UI::IsKeyPressed(UI::Key::KeyPadEnter) or UI::IsKeyPressed(UI::Key::Insert))
+        if (RPM >= upShiftVal)
         {
-            EasterEgg();
+            RGBCar::SetCarHue(upShiftHue);
+        }
+        else if (RPM <= downShiftVal)
+        {
+            RGBCar::SetCarHue(downShiftHue);
+        }
+        else
+        {
+            RGBCar::SetCarHue(app.CurrentProfile.User_LightTrailHue);
         }
     }
-
-    UI::SameLine();
-    UI::PushStyleColor(UI::Col::Text, vec4(0.101, 0.539, 0.945, 1));
-    UI::Text("jailman.");
-    if (UI::IsItemClicked())
+    else if (GetSpeedometerValues() == ESpeedometerStatus::NotInstalled)
     {
-        auto app = cast<CGameManiaPlanet>(GetApp());
-        app.ManiaPlanetScriptAPI.OpenLink("https://github.com/CodyNinja1/", CGameManiaPlanetScriptAPI::ELinkType::ExternalBrowser);
+        UI::ShowNotification("You do not have Speedometer installed.", "This option requires you to install Speedometer.", vec4(1, 0, 0, 1));
+        speedometerInstalledAlert = true;
+        S_HueType = EHueType::PerCarColor;
     }
-    UI::PopStyleColor();
-
-    UI::Separator();
-
-    UI::Text("If you have theme suggestions or new features, make an issue on");
-    UI::SameLine();
-    UI::PushStyleColor(UI::Col::Text, vec4(0.101, 0.539, 0.945, 1));
-    UI::Text("GitHub!");
-    if (UI::IsItemClicked())
+    else
     {
-        auto app = cast<CGameManiaPlanet>(GetApp());
-        app.ManiaPlanetScriptAPI.OpenLink("https://github.com/CodyNinja1/RGBCar/issues/", CGameManiaPlanetScriptAPI::ELinkType::ExternalBrowser);
+        UI::ShowNotification("Current Speedometer theme is not supported", "Only Basic and BasicDigital themes are supported", vec4(1, 0, 0, 1), 10000);
+        speedometerInstalledAlert = true;
+        S_HueType = EHueType::PerCarColor;
     }
-    UI::PopStyleColor();
 }
 
-[SettingsTab name="Stunts" icon="Random" order="3"]
-void RenderStunts()
+ESpeedometerStatus GetSpeedometerValues()
 {
-    float MasterColor = AddSettingsOptionFloat("Master stunt color", S_MasterColor, 0, 1);
-    S_MasterColor = MasterColor;
-    AddColorPreview(MasterColor);
+    for (int i = 0; i < Meta::AllPlugins().Length; i++)
+    {
+        auto plugin = Meta::AllPlugins()[i];
 
-    float EpicColor = AddSettingsOptionFloat("Epic stunt color", S_EpicColor, 0, 1);
-    S_EpicColor = EpicColor;
-    AddColorPreview(EpicColor);
+        if (plugin.SiteID == 207) // https://openplanet.dev/plugin/207
+        {
+            int type = plugin.GetSetting("Theme").ReadEnum();
+            string typeStr = tostring(ESpeedometerType(type));
+
+            if (typeStr == "Ascension2023" || typeStr == "TrackmaniaTurbo") return ESpeedometerStatus::NotSupported;
+
+            vec4 UpShift = plugin.GetSetting(typeStr + "GaugeRPMUpshiftColor").ReadVec4();
+            upShiftHue = UI::ToHSV(UpShift.x, UpShift.y, UpShift.z).x;
+
+            vec4 DownShift = plugin.GetSetting(typeStr + "GaugeRPMDownshiftColor").ReadVec4();
+            downShiftHue = UI::ToHSV(DownShift.x, DownShift.y, DownShift.z).x;
+
+            return ESpeedometerStatus::Success;
+        }
+    }
+    return ESpeedometerStatus::NotInstalled;
 }
 
-[SettingsTab name="Bonk" icon="Bomb" order="4"]
-void RenderBonk()
+void HandlePerCarColorTheme(CSceneVehicleVisState@ state)
 {
-    float BonkColor = AddSettingsOptionFloat("Bonk color", S_BonkColor, 0, 1);
-    S_BonkColor = BonkColor;
-    AddColorPreview(BonkColor);
+    VehicleState::VehicleType car = GetCar(state);
+    switch (car)
+    {
+        case VehicleState::VehicleType::CarSnow:
+            RGBCar::SetCarHue(S_SColor);
+            break;
+        case VehicleState::VehicleType::CarRally:
+            RGBCar::SetCarHue(S_RColor);
+            break;
+        case VehicleState::VehicleType::CarDesert:
+            RGBCar::SetCarHue(S_DColor);
+            break;
+        default:
+            RGBCar::SetCarHue(S_OColor);
+            break;
+    }
+
 }
+
+void HandleRGBCarSpeedTheme(int speed)
+{
+    if (RGBCar::GetCarHue() >= 0.999)
+    {
+        RGBCar::SetCarHue(0);
+    }
+    else
+    {
+        if (S_Factor == 0) S_Factor = -0.01;
+        RGBCar::ChangeCarHue(Math::Abs(speed / (S_Factor * 1000.0)));
+    }
+}
+
+// If riolu has a million fans, then I am one of them. If riolu has ten fans, then I am one of them. If riolu has only one fan then that is me. If riolu has no fans, then that means I am no longer on earth. If the world is against riolu, then I am against the world. #rioluFOREVER
+
+void HandleStuntTheme(CSmPlayer@ player, CSceneVehicleVisState@ state)
+{
+    if (!state.IsGroundContact)
+    {
+        lastAirTime = Time::Now;
+    }
+    if (state.IsGroundContact)
+    {
+        lastGroundTime = Time::Now;
+    }  
+
+    AirTime = Time::Now - lastGroundTime;
+    GroundTime = Time::Now - lastAirTime;
+
+    RGBCar::SetCarHue(cast<CGameCtnApp>(GetApp()).CurrentProfile.User_LightTrailHue);
+
+    if (AirTime >= 1500 and cast<CSmScriptPlayer>(player.ScriptAPI).IdleDuration >= 1500)
+    {
+        RGBCar::SetCarHue(S_MasterColor);
+    }
+
+    if (AirTime >= 3000 and cast<CSmScriptPlayer>(player.ScriptAPI).IdleDuration >= 3000)
+    {
+        RGBCar::SetCarHue(S_EpicColor);
+    }
+}
+
+#if DEPENDENCY_BONK
+void HandleBonkTheme()
+{
+    bool hasBonked = Bonk::lastBonkTime() == Time::Now;
+    if (hasBonked)
+    {
+        RGBCar::SetCarHue(S_BonkColor);
+    } else
+    {
+        RGBCar::SetCarHue(cast<CGameCtnApp>(GetApp()).CurrentProfile.User_LightTrailHue);
+    }
+}
+#endif
