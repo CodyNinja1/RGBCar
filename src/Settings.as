@@ -2,16 +2,41 @@ enum EHueType
 {
     CarSpeed = 0,
     CarRPM = 1,
-    Speedometer = 2,
     RGB = 3,
     RGBCarSpeed = 4,
     FixedColor = 5,
     PerCarColor = 6,
-    CurrentEffects = 7;
+    Stunt = 7,
+#if DEPENDENCY_BONK
+    Bonk = 8,
+#endif
+    Speedometer = 2,
+}
+
+enum EDossard
+{
+    SameAsCarColor = 0,
+    OppositeCarColor = 1,
+    SeperateDossardColor = 2
 }
 
 [Setting name="Change color with StadiumCar" category="Base options"]
 bool S_Stupidity = true;
+
+[Setting name="Force trails" category="Base options"]
+bool S_FTrails = false;
+
+[Setting name="Set dossard color" category="Base options"]
+bool S_Dossard = false;
+
+[Setting name="Dossard type" category="Dossard"]
+EDossard S_DossardType = EDossard::SameAsCarColor;
+
+[Setting name="Dossard color" category="Dossard" color]
+vec3 S_DossardColor = vec3(1, 0, 0.6);
+
+[Setting name="Automatically set effect type to Stunt on stunt maps" category="Base options"]
+bool S_AutoStunt = true;
 
 [Setting name="Use custom gradient" category="Gradient" hidden]
 bool S_Gradient = false;
@@ -28,10 +53,10 @@ EHueType S_HueType = EHueType::RGB;
 [Setting name="RGB speed" category="Base options" min=0.01 max=10.0]
 float S_Speed = 1.0;
 
-[Setting name="Color" category="Base options" min=0.0 max=1.0]
+[Setting name="Color" category="Base options" min=0.0 max=1.0 hidden]
 float S_Hue = 0.0;
 
-[Setting name="RGBCarSpeed factor" category="Base options" min=1.0 max=20.0]
+[Setting name="RGBCarSpeed factor" category="Base options" min=-20.0 max=20.0]
 float S_Factor = 5.0;
 
 [Setting name="CarSnow color" category="Per-car colors" min=0.0 max=1.0 hidden]
@@ -45,6 +70,17 @@ float S_DColor = 0.141;
 
 [Setting name="Other car color" category="Per-car colors" min=0.0 max=1.0 hidden]
 float S_OColor = 0.765;
+
+[Setting name="Master stunt color" category="Stunts" min=0.0 max=1.0 hidden]
+float S_MasterColor = 0.3;
+
+[Setting name="Epic stunt color" category="Stunts" min=0.0 max=1.0 hidden]
+float S_EpicColor = 0.6;
+
+#if DEPENDENCY_BONK
+[Setting name="Bonk color" category="Bonk" min=0.0 max=1.0 hidden]
+float S_BonkColor = 0.5;
+#endif
 
 bool AddSettingsOptionBool(string name, bool&in ref)
 {
@@ -65,11 +101,11 @@ void AddColorPreview(float hue)
 [SettingsTab name="Per-car colors" icon="Car" order="1"]
 void RenderPerCarColors()
 {
-    float scol = AddSettingsOptionFloat("CarSnow Color  ", S_SColor);
+    float scol = AddSettingsOptionFloat("CarSnow Color", S_SColor);
     S_SColor = scol;
     AddColorPreview(S_SColor);
 
-    float rcol = AddSettingsOptionFloat("CarRally Color   ", S_RColor);
+    float rcol = AddSettingsOptionFloat("CarRally Color", S_RColor);
     S_RColor = rcol;
     AddColorPreview(S_RColor);
     
@@ -77,7 +113,7 @@ void RenderPerCarColors()
     S_DColor = dcol;
     AddColorPreview(S_DColor);
     
-    float ocol = AddSettingsOptionFloat("OtherCar Color ", S_OColor);
+    float ocol = AddSettingsOptionFloat("OtherCar Color", S_OColor);
     S_OColor = ocol;
     AddColorPreview(S_OColor);
 }
@@ -90,7 +126,7 @@ void RenderGraident()
 
     UI::Separator();
 
-    float ming = AddSettingsOptionFloat("Minimum   ", S_MinG);
+    float ming = AddSettingsOptionFloat("Minimum", S_MinG);
     S_MinG = ming;
     AddColorPreview(S_MinG);
 
@@ -137,4 +173,24 @@ void RenderCredits()
         app.ManiaPlanetScriptAPI.OpenLink("https://github.com/CodyNinja1/RGBCar/issues/", CGameManiaPlanetScriptAPI::ELinkType::ExternalBrowser);
     }
     UI::PopStyleColor();
+}
+
+[SettingsTab name="Stunts" icon="Random" order="3"]
+void RenderStunts()
+{
+    float MasterColor = AddSettingsOptionFloat("Master stunt color", S_MasterColor, 0, 1);
+    S_MasterColor = MasterColor;
+    AddColorPreview(MasterColor);
+
+    float EpicColor = AddSettingsOptionFloat("Epic stunt color", S_EpicColor, 0, 1);
+    S_EpicColor = EpicColor;
+    AddColorPreview(EpicColor);
+}
+
+[SettingsTab name="Bonk" icon="Bomb" order="4"]
+void RenderBonk()
+{
+    float BonkColor = AddSettingsOptionFloat("Bonk color", S_BonkColor, 0, 1);
+    S_BonkColor = BonkColor;
+    AddColorPreview(BonkColor);
 }
