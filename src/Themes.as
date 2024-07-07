@@ -84,15 +84,48 @@ void HandleRGBCarSpeedTheme(int speed)
     }
     else
     {
-        RGBCar::ChangeCarHue(speed / (S_Factor * 1000.0));
+        if (S_Factor == 0) S_Factor = -0.01;
+        RGBCar::ChangeCarHue(Math::Abs(speed / (S_Factor * 1000.0)));
     }
 }
 
-void HandleEffectsTheme()
+void HandleStuntTheme(CSmPlayer@ player, CSceneVehicleVisState@ state)
 {
-#if DEPENDENCY_CURRENTEFFECTS
-    print("installed");
-#else
-    print("not installed");
-#endif
+    if (!state.IsGroundContact)
+    {
+        lastAirTime = Time::Now;
+    }
+    if (state.IsGroundContact)
+    {
+        lastGroundTime = Time::Now;
+    }  
+
+    AirTime = Time::Now - lastGroundTime;
+    GroundTime = Time::Now - lastAirTime;
+
+    RGBCar::SetCarHue(cast<CGameCtnApp>(GetApp()).CurrentProfile.User_LightTrailHue);
+
+    if (AirTime >= 1500 and cast<CSmScriptPlayer>(player.ScriptAPI).IdleDuration >= 1500)
+    {
+        RGBCar::SetCarHue(S_MasterColor);
+    }
+
+    if (AirTime >= 3000 and cast<CSmScriptPlayer>(player.ScriptAPI).IdleDuration >= 3000)
+    {
+        RGBCar::SetCarHue(S_EpicColor);
+    }
 }
+
+#if DEPENDENCY_BONK
+void HandleBonkTheme()
+{
+    bool hasBonked = Bonk::lastBonkTime() == Time::Now;
+    if (hasBonked)
+    {
+        RGBCar::SetCarHue(S_BonkColor);
+    } else
+    {
+        RGBCar::SetCarHue(cast<CGameCtnApp>(GetApp()).CurrentProfile.User_LightTrailHue);
+    }
+}
+#endif
