@@ -23,6 +23,9 @@ enum EDossard
 [Setting name="Change color with StadiumCar" category="Base options"]
 bool S_Stupidity = true;
 
+[Setting name="Use experimental StadiumCar coloring" category="Base options"]
+bool S_ExperimentalCarSport = true;
+
 [Setting name="Force trails" category="Base options"]
 bool S_FTrails = false;
 

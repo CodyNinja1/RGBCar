@@ -107,14 +107,19 @@ void Main()
             continue;
         }
 
+        // honestly quite incredible (matchmaking fix)
+        auto serverInfo = cast<CGameCtnNetServerInfo>(GetApp().Network.ServerInfo);
+		if (serverInfo !is null and serverInfo.ServerLogin != "") {
+			yield();
+            continue;
+		}
+
         CSmPlayer@ player = VehicleState::GetViewingPlayer();
         if (player is null)
         {
             yield();
             continue;
         }
-
-        cast<CSmScriptPlayer>(player.ScriptAPI).ForceLightTrail = S_FTrails;
 
         CSceneVehicleVis@ vis = VehicleState::GetVis(GetApp().GameScene, player);
         if (vis is null)
@@ -130,7 +135,11 @@ void Main()
             continue;
         }
 
-        HandleMainLoop(state, player);
+        if (GetCar(state) != VehicleState::VehicleType::CarSport or S_Stupidity)
+        {
+            HandleMainLoop(state, player);
+            cast<CSmScriptPlayer>(player.ScriptAPI).ForceLightTrail = S_FTrails;
+        }
         
         yield();
     }
@@ -138,74 +147,70 @@ void Main()
 
 void HandleMainLoop(CSceneVehicleVisState@ state, CSmPlayer@ player)
 {
-    float base = 0.0;
-
-    base = state.WorldVel.Length() * 3.6f;
+    float base = state.WorldVel.Length() * 3.6f;
 
     int speed = int(base);
     int RPM = int(VehicleState::GetRPM(state));
 
-    if ((GetCar(state) != VehicleState::VehicleType::CarSport) or S_Stupidity)
+    if (S_AutoStunt and (GetApp().RootMap.MapType.Contains("TM_Stunt")))
     {
-        if (S_AutoStunt and (GetApp().RootMap.MapType.Contains("TM_Stunt")))
-        {
+        HandleStuntTheme(player, state);
+        HandleModifications(player);
+        return;
+    }
+
+    switch (S_HueType)
+    {
+        case EHueType::RGB:
+            RGBCar::ChangeCarHue(S_Speed / 100.0);
+            break;
+            
+        case EHueType::CarSpeed:
+            RGBCar::SetCarHue(speed / 1000.0);
+            break;
+            
+        case EHueType::RGBCarSpeed:
+            HandleRGBCarSpeedTheme(speed);
+            break;
+
+        case EHueType::CarRPM:
+            RGBCar::SetCarHue(RPM / 11000.0);
+            break;
+
+        case EHueType::Speedometer:
+            HandleSpeedometerTheme(RPM);
+            break;
+
+        case EHueType::PerCarColor:
+            HandlePerCarColorTheme(state);
+            break;
+
+        case EHueType::Stunt:
             HandleStuntTheme(player, state);
-            HandleModifications(player);
-            return;
-        }
-
-        switch (S_HueType)
-        {
-            case EHueType::RGB:
-                RGBCar::ChangeCarHue(S_Speed / 100.0);
-                break;
-                
-            case EHueType::CarSpeed:
-                RGBCar::SetCarHue(speed / 1000.0);
-                break;
-                
-            case EHueType::RGBCarSpeed:
-                HandleRGBCarSpeedTheme(speed);
-                break;
-
-            case EHueType::CarRPM:
-                RGBCar::SetCarHue(RPM / 11000.0);
-                break;
-
-            case EHueType::Speedometer:
-                HandleSpeedometerTheme(RPM);
-                break;
-
-            case EHueType::PerCarColor:
-                HandlePerCarColorTheme(state);
-                break;
-
-            case EHueType::Stunt:
-                HandleStuntTheme(player, state);
-                break;
+            break;
 #if DEPENDENCY_BONK
-            case EHueType::Bonk:
-                HandleBonkTheme();
-                break;
+        case EHueType::Bonk:
+            HandleBonkTheme();
+            break;
 #endif
 
-            default:
-                S_HueType = EHueType::PerCarColor;
-                if (!fixedColorDeprecationAlert)
-                {
-                    UI::ShowNotification("FixedColor is deprecated.", "Nadeo has removed the ability to make your car grey. Please use PerCarColor instead.");
-                    fixedColorDeprecationAlert = true;
-                }
-                break;
-        }
-        
-        if (RGBCar::GetCarHue(player) >= 0.999)
-        {
-            RGBCar::ChangeCarHue(-1.0);
-        }
+        default:
+            S_HueType = EHueType::PerCarColor;
+            if (!fixedColorDeprecationAlert)
+            {
+                UI::ShowNotification("FixedColor is deprecated.", "Nadeo has removed the ability to make your car grey. Please use PerCarColor instead.");
+                fixedColorDeprecationAlert = true;
+            }
+            break;
+    }
+    
+    if (RGBCar::GetCarHue(player) >= 0.999)
+    {
+        RGBCar::ChangeCarHue(-1.0);
     }
 
     HandleModifications(player);
+    HandleCarSport(state);
 }
 
 void HandleModifications(CSmPlayer@ player)

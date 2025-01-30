@@ -30,6 +30,37 @@ void HandleSpeedometerTheme(int RPM)
     }
 }
 
+GxLight@ GetLight(CGameCtnApp@ App)
+{
+	ISceneVis@ GameScene = App.GameScene;
+	if (GameScene !is null)
+	{
+		CScene@ HackScene = GameScene.HackScene;
+		if (HackScene !is null)
+		{
+			CSceneLight@ SceneLight = HackScene.Lights[0];
+			if (SceneLight !is null)
+			{
+				GxLight@ Light = SceneLight.Light;
+				if (Light !is null)
+				{
+					return Light;
+				}
+			}
+		}
+	}
+	return null;
+}
+
+void HandleCarSport(CSceneVehicleVisState@ state)
+{
+    GxLight@ Light = GetLight(GetApp());
+    if (Light !is null)
+    {
+        Light.Color = (GetCar(state) == VehicleState::VehicleType::CarSport) and S_ExperimentalCarSport ? UI::HSV(RGBCar::GetCarHue() + 0.5, 1, 1).xyz : vec3(1, 1, 1);
+    }
+}
+
 ESpeedometerStatus GetSpeedometerValues()
 {
     for (int i = 0; i < Meta::AllPlugins().Length; i++)

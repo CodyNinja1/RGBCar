@@ -5,7 +5,11 @@ namespace RGBCar
         CSmPlayer@ player = VehicleState::GetViewingPlayer();
         if (player is null) return false;
 
+        CSceneVehicleVis@ vis = VehicleState::GetVis(GetApp().GameScene, player);
+        CSceneVehicleVisState@ state = vis.AsyncState;
+
         player.LinearHue = hue;
+        HandleCarSport(state);
         
         return true;
     }
@@ -15,20 +19,18 @@ namespace RGBCar
         CSmPlayer@ player = VehicleState::GetViewingPlayer();
         if (player is null) return false;
 
+        CSceneVehicleVis@ vis = VehicleState::GetVis(GetApp().GameScene, player);
+        CSceneVehicleVisState@ state = vis.AsyncState;
+
         player.LinearHue += hue;
+        HandleCarSport(state);
 
         return true;
     }
 
     bool IsPlayerInColorableCar()
     {
-        CSmPlayer@ player = VehicleState::GetViewingPlayer();
-        if (player is null) return false;
-
-        CSceneVehicleVis@ vis = VehicleState::GetVis(GetApp().GameScene, player);
-        CSceneVehicleVisState@ state = vis.AsyncState;
-
-        return GetCar(state) != 0;
+        return true;
     }
 
     float GetCarHue(CSmPlayer@ player)
